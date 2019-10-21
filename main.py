@@ -39,6 +39,7 @@ action_space = train_env.action_space
 obs_shape = train_env.observation_space.shape
 
 replay_buffer_size = 30000
+train_buffer_size = 10000
 
 
 replay_buffer = ReplayBuffer(replay_buffer_size)
@@ -78,7 +79,7 @@ for i_episode in trange(0, max_episodes, batch_size):
         replay_buffer.push(state, action, reward, next_state, done)
         state = next_state
 
-    if len(replay_buffer) > batch_size:
+    if len(replay_buffer) > train_buffer_size:
         loss = qt_opt.update(batch_size)
         writer.add_scalar('loss', loss, i_episode)
 
