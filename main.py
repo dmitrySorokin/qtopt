@@ -26,6 +26,7 @@ class CarRacing(gym.Wrapper):
         env = gym.make('CarRacing-v0')
         shape = env.observation_space.shape
 
+        self.crop = 15
         self.fs = 4
         self.shape = (shape[0], shape[1])
         self.frames = [np.zeros(shape, dtype=np.uint8)] * self.fs
@@ -49,6 +50,7 @@ class CarRacing(gym.Wrapper):
 
     def observation(self, obs):
         obs = obs.transpose(2, 0, 1)
+        obs = obs[:, :-self.crop, :]
         obs = np.mean(obs, axis=0).astype(np.uint8)
         return obs
 
