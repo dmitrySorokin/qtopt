@@ -38,7 +38,7 @@ train_env = CarRacing()
 action_space = train_env.action_space
 obs_shape = train_env.observation_space.shape
 
-replay_buffer_size = 300
+replay_buffer_size = 30000
 
 
 replay_buffer = ReplayBuffer(replay_buffer_size)
@@ -64,7 +64,10 @@ for i_episode in trange(0, max_episodes, batch_size):
 
     state = train_env.reset()
 
-    for step in range(max_steps):
+    istep = 0
+    done = False
+    while not done and istep < max_steps:
+        istep += 1
         state_batch = np.expand_dims(state, axis=0)
         action = qt_opt.cem_optimal_action(state_batch)
         next_state, reward, done, info = train_env.step(action)
