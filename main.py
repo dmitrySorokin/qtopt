@@ -39,7 +39,7 @@ class CarRacing(gym.Wrapper):
         obs, rew, done, info = self.env.step(action)
         obs = self.observation(obs)
         self.frames = [obs] + self.frames[:-1]
-        return np.asarray(self.frames), rew, done, info
+        return np.asarray(self.frames), max(rew, 1.0), done, info
 
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)
@@ -75,7 +75,7 @@ episode_rewards = []
 
 
 
-writer = SummaryWriter('logs/v3')
+writer = SummaryWriter('logs/v4')
 
 for i_episode in trange(0, max_episodes, batch_size):
 
