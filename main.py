@@ -27,24 +27,30 @@ class CarRacing(gym.Wrapper):
         shape = env.observation_space.shape
 
         self.crop = 15
-        self.shape = (shape[2], shape[0] - self.crop, shape[1])
+        self.shape = (shape[0] - self.crop, shape[1])
+        self.fs = 4
+        self.frames = None
 
-        env.observation_space = gym.spaces.Box(low=0, high=255, shape=self.shape)
+        env.observation_space = gym.spaces.Box(
+            low=0, high=255, shape=(self.fs, *self.shape))
         super().__init__(env)
 
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
         obs = self.observation(obs)
-        return obs, rew, done, info
+        self.frames = [obs] + self.frames[:-1]
+        return np.asarray(self.frames), rew, done, info
 
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)
         obs = self.observation(obs)
-        return obs
+        self.frames = [np.zeros(self.shape, dtype=np.uint8)] * self.fs
+        self.frames = [obs] + self.frames[:-1]
+        return np.asarray(self.frames)
 
     def observation(self, obs):
-        obs = obs.transpose(2, 0, 1)
-        obs = obs[:, :-self.crop, :]
+        obs = obs[:-self.crop, :, :]
+        obs = np.dot(obs[..., :3], [0.299, 0.587, 0.114])
         return obs
 
 
@@ -69,13 +75,11 @@ episode_rewards = []
 
 
 
-writer = SummaryWriter('logs/v1')
+writer = SummaryWriter('logs/v3')
 
 for i_episode in trange(0, max_episodes, batch_size):
 
     episode_reward = 0
-    episode_dist = 0
-    episode_angle = 0
     episode_actions = np.zeros(action_space.shape[0])
 
     state = train_env.reset()
@@ -101,8 +105,6 @@ for i_episode in trange(0, max_episodes, batch_size):
         qt_opt.save_model('saved_model')
 
     writer.add_scalar('reward', episode_reward, i_episode)
-    writer.add_scalar('dist', episode_dist, i_episode)
-    writer.add_scalar('angle', episode_angle, i_episode)
 
     for i, a in enumerate(episode_actions):
         writer.add_scalar('actions_{}'.format(i), a, i_episode)

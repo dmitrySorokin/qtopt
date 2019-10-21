@@ -26,7 +26,7 @@ class QNetwork(nn.Module):
             init_(nn.Conv2d(num_inputs, 32, 8, stride=4)), nn.ReLU(),
             init_(nn.Conv2d(32, 64, 4, stride=2)), nn.ReLU(),
             init_(nn.Conv2d(64, 32, 3, stride=1)), nn.ReLU(), Flatten(),
-            init_(nn.Linear(2048, hidden_size)), nn.ReLU()
+            init_(nn.Linear(1536, hidden_size)), nn.ReLU()
         )
 
         self.linear1 = nn.Sequential(
