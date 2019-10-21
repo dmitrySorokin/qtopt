@@ -27,31 +27,24 @@ class CarRacing(gym.Wrapper):
         shape = env.observation_space.shape
 
         self.crop = 15
-        self.fs = 4
-        self.shape = (shape[0], shape[1])
-        self.frames = [np.zeros(shape, dtype=np.uint8)] * self.fs
+        self.shape = (shape[2], shape[0] - self.crop, shape[1])
 
-        env.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(self.fs, shape[0], shape[1]))
+        env.observation_space = gym.spaces.Box(low=0, high=255, shape=self.shape)
         super().__init__(env)
 
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
         obs = self.observation(obs)
-        self.frames = [obs] + self.frames[:-1]
-        return np.asarray(self.frames), rew, done, info
+        return obs, rew, done, info
 
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)
         obs = self.observation(obs)
-        self.frames = [np.zeros(self.shape, dtype=np.uint8)] * self.fs
-        self.frames = [obs] + self.frames[:-1]
-        return np.asarray(self.frames)
+        return obs
 
     def observation(self, obs):
         obs = obs.transpose(2, 0, 1)
         obs = obs[:, :-self.crop, :]
-        obs = np.mean(obs, axis=0).astype(np.uint8)
         return obs
 
 

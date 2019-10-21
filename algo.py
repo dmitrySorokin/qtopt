@@ -1,4 +1,5 @@
 from torch import optim
+from torch import nn
 from cem import CEM
 from qnet import QNetwork
 
@@ -78,6 +79,7 @@ class QTOpt(object):
 
         self.q_optimizer.zero_grad()
         q_loss.backward()
+        nn.utils.clip_grad_norm_(self.qnet.parameters(), 0.5)
         self.q_optimizer.step()
 
         # update the target nets, according to original paper:
