@@ -42,10 +42,12 @@ class QNetwork(nn.Module):
 
     def forward(self, inputs, action):
         inputs = inputs.float()
+        action = action.float()
+
         x = inputs / 255
         x = self.main(x)
 
-        x = torch.cat([x, action], 1)
+        x = torch.cat((x, action), 1)
         x = self.linear1(x)
         x = self.linear2(x)
 

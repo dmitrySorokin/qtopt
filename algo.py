@@ -52,9 +52,12 @@ class QTOpt(object):
         predict_q = self.qnet(state, action)  # predicted Q(s,a) value
 
         # get argmax_a' from the CEM for the target Q(s', a')
+
         new_next_action = []
         for i in range(batch_size):  # batch of states, use them one by one, to prevent the lack of memory
-            new_next_action.append(self.cem_optimal_action(next_state[i].unsqueeze(0)))
+            new_next_action.append(self.cem_optimal_action(
+                np.expand_dims(next_state[i], axis=0)
+            ))
         new_next_action = torch.FloatTensor(new_next_action).to(self.device)
 
         target_q_min = torch.min(

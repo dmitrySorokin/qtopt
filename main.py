@@ -63,20 +63,16 @@ for i_episode in trange(0, max_episodes, batch_size):
     episode_actions = np.zeros(action_space.shape[0])
 
     state = train_env.reset()
-    state = np.expand_dims(state, axis=0)
-    print(state.shape)
 
     for step in range(max_steps):
-        # action = qt_opt.policy.act(state)
-        action = qt_opt.cem_optimal_action(state)
+        state_batch = np.expand_dims(state, axis=0)
+        action = qt_opt.cem_optimal_action(state_batch)
         next_state, reward, done, info = train_env.step(action)
-        next_state = np.expand_dims(next_state, axis=0)
 
         episode_reward += reward
         episode_actions += action
 
-
-        replay_buffer.push(state, [action], [reward], next_state, [done])
+        replay_buffer.push(state, action, reward, next_state, done)
         state = next_state
 
     if len(replay_buffer) > batch_size:
